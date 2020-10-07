@@ -1,3 +1,6 @@
-//! glfn - describe me (TODO)
+//! glfn - describe me / TODO
 
-pub fn do_nothing() {}
+#[doc(hidden)]
+pub mod xml {
+    pub const GL: &str = include_str!("../khronos/registry/gl.xml");
+}
