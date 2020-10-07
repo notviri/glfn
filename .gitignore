@@ -1,0 +1,8 @@
+# cargo build cache & lockfile
+/Cargo.lock
+/target
+
+# editor preferences
+/.idea
+/.project
+/.vscode
