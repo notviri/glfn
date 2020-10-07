@@ -3,6 +3,17 @@ name = "glfn"
 version = "0.1.0"
 authors = ["viri <hi@viri.moe>"]
 edition = "2018"
+# description = "..."
+documentation = "https://docs.rs/glfn"
+readme = "README.md"
+# homepage = "..."
+repository = "https://github.com/notviri/glfn/"
+license = "Zlib"
+# keywords = ["...", "..."]
+# categories = ["...", "..."]
+# build = "rel/path/to/build.rs"
+include = ["src/**/*.rs", "Cargo.toml"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
