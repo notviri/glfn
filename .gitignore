@@ -6,3 +6,6 @@
 /.idea
 /.project
 /.vscode
+
+# khronos registry xml blobs
+/khronos/registry
