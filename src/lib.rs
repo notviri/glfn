@@ -25,14 +25,13 @@ pub enum Error {
     IO(io::Error),
 
     /// Invalid XML registry structure encountered.
-    ///
-    /// Generally this should never be emitted unless Khronos made a mistake in an update.
+    /// This error is not emitted on official Khronos inputs.
     Registry(RegistryError),
 
     /// Failed to parse XML file.
     ///
     /// Note that this only refers to XML validity, not the registry data being correct.
-    /// Generally this should never be emitted unless Khronos made a mistake in an update.
+    /// This error is not emitted on official Khronos inputs.
     XML(crate::deps::roxmltree::Error),
 }
 #[derive(Debug)]
@@ -72,36 +71,60 @@ error_from_err!(Registry, RegistryError);
 error_from_err!(XML, roxmltree::Error);
 
 #[derive(Copy, Clone)]
-pub enum API {
+pub enum API<'src> {
     GL,
-    // ...
+
+    Custom(&'src str),
 }
 
-pub struct Generator {
-    api: API,
+pub struct Generator<'registry> {
+    api: API<'registry>,
 }
 
-impl Generator {
-    pub fn new(api: API) -> Self {
+impl<'registry> Generator<'registry> {
+    pub fn new(api: API<'registry>) -> Self {
         Self { api }
     }
 
-    pub fn generate(&self, out: &mut impl io::Write) -> Result<(), Error> {
-        let _ = out; // we'll write here eventually
-
+    pub fn generate(&self) -> Result<Registry, Error> {
         let doc = Document::parse(api_to_xml(self.api))?;
-        let registry = match doc.descendants().find(|node| node.has_tag_name("registry")) {
-            Some(registry) => registry,
-            None => return Err(RegistryError::MissingRoot.into()),
-        };
-
-        Ok(())
+        Ok(Registry::new(doc)?)
     }
 }
 
-fn api_to_xml(api: API) -> &'static str {
+pub struct Registry {
+
+}
+
+impl Registry {
+    fn new(xml: roxmltree::Document) -> Result<Self, RegistryError> {
+        let root = match xml.descendants().find(|node| node.has_tag_name("registry")) {
+            Some(registry) => registry,
+            None => return Err(RegistryError::MissingRoot),
+        };
+        Ok(Registry {})
+    }
+}
+
+fn api_to_xml(api: API) -> &str {
     let xml = match api {
         API::GL => xml::GL,
+        API::Custom(custom) => custom,
     };
-    xml.trim_start_matches('\u{feff}')
+    trim_bom(xml)
+}
+
+fn trim_bom(s: &str) -> &str {
+    s.trim_start_matches('\u{feff}')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::xml;
+    use roxmltree::Document;
+
+    #[test]
+    fn xml_files_parse() {
+        let _ = Document::parse(xml::GL).unwrap();
+    }
 }
