@@ -4,7 +4,6 @@
 
 use roxmltree::Document;
 use std::{fmt, error, io};
-use crate::Error::Registry;
 
 /// Re-exported dependencies.
 pub mod deps {
@@ -93,7 +92,7 @@ impl Generator {
         let doc = Document::parse(api_to_xml(self.api))?;
         let registry = match doc.descendants().find(|node| node.has_tag_name("registry")) {
             Some(registry) => registry,
-            None => Err(RegistryError::MissingRoot.into()),
+            None => return Err(RegistryError::MissingRoot.into()),
         };
 
         Ok(())
